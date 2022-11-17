@@ -3,14 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/bndr/gojenkins"
 	"time"
+
+	"github.com/bndr/gojenkins"
 )
 
 func main() {
 	fmt.Println("hello world")
-	CreateFolder("Testf3", "Testf")
-
+	GetAllJobsName()
 }
 
 func getJenkins() (*gojenkins.Jenkins, context.Context) {
@@ -34,6 +34,15 @@ func CreateFolder(name string, parent string) {
 	}
 
 	fmt.Printf("Folder name: %s", folder.GetName())
+}
+
+func GetAllJobsName() []*gojenkins.Job {
+	jenkins, ctx := getJenkins()
+	allJobs, err := jenkins.GetAllJobs(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return allJobs
 }
 
 func BuildJob(name string) {
