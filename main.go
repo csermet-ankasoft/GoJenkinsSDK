@@ -23,7 +23,7 @@ func main() {
 
 		//fmt.Printf("Folder name: %s", folder.GetName())
 	*/
-	GetFolder("Test23", "Testf")
+	deleteJob(findJobByName("Test22", "Testf"))
 }
 
 func CreateFolder(name string, parent string) {
@@ -110,6 +110,32 @@ func CreatJob(name string, parent string) {
 	}
 
 	fmt.Printf(jobName)
+}
+
+func findJobByName(name string, parent string) *gojenkins.Job {
+	jenkins, ctx := getJenkins()
+	if parent == "" {
+		job, err := jenkins.GetJob(ctx, name)
+		if err != nil {
+			panic(err)
+		}
+		return job
+	} else {
+		job, err := jenkins.GetJob(ctx, name, parent)
+		if err != nil {
+			panic(err)
+		}
+		return job
+	}
+}
+
+func deleteJob(job *gojenkins.Job) {
+	_, ctx := getJenkins()
+	returnbool, err := job.Delete(ctx)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(returnbool)
 }
 
 func BuildJob(name string) {
