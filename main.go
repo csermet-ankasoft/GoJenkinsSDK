@@ -23,7 +23,7 @@ func main() {
 
 		//fmt.Printf("Folder name: %s", folder.GetName())
 	*/
-	CreatJob("Test21", "Testf")
+	GetFolder("Test23", "Testf")
 }
 
 func CreateFolder(name string, parent string) {
@@ -51,19 +51,24 @@ func GetFolder(name string, parent string) {
 	var folderName = ""
 	if parent == "" {
 		folder, err := jenkins.GetFolder(ctx, name)
-		if err != nil {
+		if err.Error() == "404" {
+			fmt.Printf("Folder Not Found")
+		} else if err != nil {
 			panic(err)
 		}
 		folderName = folder.GetName()
 	} else {
 		folder, err := jenkins.GetFolder(ctx, name, parent)
-		if err != nil {
+		if err.Error() == "404" {
+			fmt.Printf("Folder Not Found")
+		} else if err != nil {
 			panic(err)
+		} else {
+			folderName = folder.GetName()
+			fmt.Printf("Folder name: %s", folderName)
 		}
-		folderName = folder.GetName()
-	}
 
-	fmt.Printf("Folder name: %s", folderName)
+	}
 }
 
 func getJobConfig(name string, parent string) string {
@@ -87,7 +92,7 @@ func getJobConfig(name string, parent string) string {
 }
 
 func CreatJob(name string, parent string) {
-	config := getJobConfig("Test", "")
+	config := "<?xml version=\"1.1\" encoding=\"UTF-8\"?><project>\n  <description/>\n  <keepDependencies>false</keepDependencies>\n  <properties/>\n  <scm class=\"hudson.scm.NullSCM\"/>\n  <canRoam>true</canRoam>\n  <disabled>false</disabled>\n  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>\n  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>\n  <triggers/>\n  <concurrentBuild>false</concurrentBuild>\n  <builders/>\n  <publishers/>\n  <buildWrappers/>\n</project>"
 	jenkins, ctx := getJenkins()
 	jobName := ""
 	if parent == "" {
