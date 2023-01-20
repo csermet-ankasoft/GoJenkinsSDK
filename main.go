@@ -9,21 +9,76 @@ import (
 )
 
 func main() {
-	/*
-		fmt.Println("hello world")
-		jobs := GetAllJobsName()
-		Build := GetAllBuildsID(jobs[0])
-		fmt.Println(Build)
+	//CheckAllNodeStatus()
+	//CreateNode("Test2", 1, "Nope Desc", "/home", "NopeLabel") //map[string]string{"method": "JNLPLauncher"}
+	DeleteNode("Test2")
+}
 
-		jenkins, ctx := getJenkins()
-		_, err := jenkins.GetFolder(ctx, "Testf", "Testf3")
-		if err != nil {
-			panic(err)
+func DeleteNode(name string) {
+	jenkins, ctx := getJenkins()
+
+	result, err := jenkins.DeleteNode(ctx, name)
+
+	if err != nil {
+		fmt.Print("Error: ", err)
+	} else {
+		if result != true {
+			fmt.Print("Node Deleted")
+		} else {
+			fmt.Print("Node Not Deleted")
 		}
+	}
+}
 
-		//fmt.Printf("Folder name: %s", folder.GetName())
-	*/
-	deleteJob(findJobByName("Test22", "Testf"))
+func CreateNode(name string, numExecutors int, description string, remoteFS string, label string) {
+	jenkins, ctx := getJenkins()
+
+	node, err := jenkins.CreateNode(ctx, name, numExecutors, description, remoteFS, label)
+
+	if err != nil {
+		fmt.Print("Error: ", err)
+	} else {
+		fmt.Print(node)
+	}
+}
+
+func GetNode(name string) {
+	jenkins, ctx := getJenkins()
+
+	node, _ := jenkins.GetNode(ctx, name) // "(built-in)"
+	if node != nil {
+		fmt.Print(node.GetName(), " - ")
+		fmt.Print(node.Jenkins.Raw.Jobs, " - \n")
+		nodeisOnline, _ := node.IsOnline(ctx)
+		if nodeisOnline {
+			fmt.Println("Node is Online")
+		} else {
+			fmt.Println("Node is Offline")
+		}
+	} else {
+		fmt.Print("Node Cannot Found")
+	}
+}
+
+func CheckAllNodeStatus() {
+	jenkins, ctx := getJenkins()
+
+	nodes, _ := jenkins.GetAllNodes(ctx)
+
+	for _, node := range nodes {
+
+		// Fetch Node Data
+		node.Poll(ctx)
+		fmt.Print(node.GetName())
+		fmt.Print(node.Jenkins.Raw.Jobs, " - \n")
+		fmt.Print(node.Raw.JnlpAgent, " - \n")
+		nodeisOnline, _ := node.IsOnline(ctx)
+		if nodeisOnline {
+			fmt.Println("Node is Online")
+		} else {
+			fmt.Println("Node is Offline")
+		}
+	}
 }
 
 func CreateFolder(name string, parent string) {
@@ -179,7 +234,7 @@ func GetAllBuildsID(job *gojenkins.Job) []gojenkins.JobBuild {
 
 func getJenkins() (*gojenkins.Jenkins, context.Context) {
 	ctx := context.Background()
-	jenkins := gojenkins.CreateJenkins(nil, "http://35.184.233.61:8080/", "caner", "test123")
+	jenkins := gojenkins.CreateJenkins(nil, "http://3.89.89.181:8080/", "caner", "cnr1")
 	// Provide CA certificate if server is using self-signed certificate
 	// caCert, _ := ioutil.ReadFile("/tmp/ca.crt")
 	// jenkins.Requester.CACert = caCert
